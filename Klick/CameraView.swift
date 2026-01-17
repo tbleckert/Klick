@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import AudioToolbox
 #if canImport(ConfettiSwiftUI)
 import ConfettiSwiftUI
 #endif
@@ -22,6 +23,10 @@ struct CameraView: View {
     @State private var showFilterName = false
     @State private var showFrameName = false
     @State private var confettiCounter = 0
+    @State private var capturedImage: UIImage?
+    @State private var showCapturedImage = false
+    @State private var capturedImageScale: CGFloat = 1.0
+    @State private var capturedImageOffset: CGSize = .zero
     
     var body: some View {
         ZStack {
@@ -117,6 +122,21 @@ struct CameraView: View {
             }
             .animation(.easeInOut, value: showFilterName)
             .animation(.easeInOut, value: showFrameName)
+
+            // Captured photo animation overlay - fullscreen freeze
+            if showCapturedImage, let image = capturedImage {
+                GeometryReader { geometry in
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .clipped()
+                        .drawingGroup() // Flatten into single layer for better performance
+                        .scaleEffect(capturedImageScale)
+                        .offset(capturedImageOffset)
+                }
+                .ignoresSafeArea()
+            }
             
             // UI Overlay
             VStack {
@@ -183,9 +203,9 @@ struct CameraView: View {
         .onChange(of: confettiCounter) { _, _ in }
 #endif
         .onAppear {
-            cameraManager.onPhotoCaptured = { filename in
+            cameraManager.onPhotoCaptured = { filename, image in
                 savePhotoToDatabase(filename: filename)
-                confettiCounter += 1
+                triggerPhotoAnimation(image: image)
             }
         }
         .fullScreenCover(isPresented: $showGallery) {
@@ -225,6 +245,74 @@ struct CameraView: View {
             return nil
         }
         return UIImage(contentsOfFile: url.path)
+    }
+
+    private func resizeImage(_ image: UIImage, targetSize: CGSize) -> UIImage {
+        let size = image.size
+        let widthRatio  = targetSize.width  / size.width
+        let heightRatio = targetSize.height / size.height
+        let scaleFactor = max(widthRatio, heightRatio)
+
+        let scaledSize = CGSize(width: size.width * scaleFactor, height: size.height * scaleFactor)
+
+        let renderer = UIGraphicsImageRenderer(size: scaledSize)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: scaledSize))
+        }
+    }
+
+    private func triggerPhotoAnimation(image: UIImage) {
+        // Resize image on background thread for better performance
+        DispatchQueue.global(qos: .userInitiated).async {
+            // Use 50% screen size for faster animation
+            let screenSize = UIScreen.main.bounds.size
+            let targetSize = CGSize(width: screenSize.width * 0.5, height: screenSize.height * 0.5)
+            let resizedImage = self.resizeImage(image, targetSize: targetSize)
+
+            // Switch back to main thread for UI updates
+            DispatchQueue.main.async {
+                self.capturedImage = resizedImage
+                self.showCapturedImage = true
+                self.capturedImageScale = 1.0
+                self.capturedImageOffset = .zero
+
+                // Step 1: Pop and expand slightly (0.0 - 0.2s)
+                withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
+                    self.capturedImageScale = 1.15
+                }
+
+                // Step 2: Trigger confetti at peak (0.1s)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.confettiCounter += 1
+                }
+
+                // Step 3: Start flying animation to gallery button (0.3s - 0.8s)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    withAnimation(.easeIn(duration: 0.5)) {
+                        // Calculate screen dimensions
+                        let screenWidth = UIScreen.main.bounds.width
+                        let screenHeight = UIScreen.main.bounds.height
+
+                        // Shrink to 0 to go into the thumbnail
+                        self.capturedImageScale = 0.01
+
+                        // Calculate offset to gallery button position
+                        let targetX = -(screenWidth / 2) + 65
+                        let targetY = (screenHeight / 2) - 145
+
+                        self.capturedImageOffset = CGSize(width: targetX, height: targetY)
+                    }
+                }
+
+                // Step 4: Hide the animated image after animation completes (0.9s)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+                    self.showCapturedImage = false
+                    self.capturedImage = nil
+                    self.capturedImageScale = 1.0
+                    self.capturedImageOffset = .zero
+                }
+            }
+        }
     }
 }
 

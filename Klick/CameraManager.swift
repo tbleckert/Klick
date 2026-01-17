@@ -30,7 +30,7 @@ class CameraManager: NSObject, ObservableObject {
 
     private let ciContext = CIContext()
 
-    var onPhotoCaptured: ((String) -> Void)?
+    var onPhotoCaptured: ((String, UIImage) -> Void)?
     var onFilteredFrameReady: ((CIImage) -> Void)?
     
     override init() {
@@ -260,7 +260,7 @@ extension CameraManager: AVCapturePhotoCaptureDelegate {
         if let filename = savePhoto(finalImageData) {
             DispatchQueue.main.async { [weak self] in
                 self?.capturedImage = uiImage
-                self?.onPhotoCaptured?(filename)
+                self?.onPhotoCaptured?(filename, uiImage)
             }
         }
     }
