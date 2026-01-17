@@ -12,7 +12,7 @@ import SwiftData
 struct KlickApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            Photo.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -25,7 +25,7 @@ struct KlickApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            CameraView()
         }
         .modelContainer(sharedModelContainer)
     }
