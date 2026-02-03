@@ -1,0 +1,34 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="160" y1="120" x2="880" y2="940" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F6FBFF"/>
+      <stop offset="1" stop-color="#DDEBFF"/>
+    </linearGradient>
+    <linearGradient id="bodyGrad" x1="220" y1="240" x2="820" y2="860" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#DFF6FF"/>
+      <stop offset="1" stop-color="#BFE7FF"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="380" y1="340" x2="660" y2="660" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFC98E"/>
+      <stop offset="1" stop-color="#FF9F7A"/>
+    </linearGradient>
+    <radialGradient id="lensInner" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(512 560) rotate(90) scale(170)">
+      <stop offset="0" stop-color="#3B6B8C"/>
+      <stop offset="1" stop-color="#1B3345"/>
+    </radialGradient>
+    <filter id="softShadow" x="140" y="170" width="744" height="744" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#B9C9DB" flood-opacity="0.65"/>
+    </filter>
+  </defs>
+
+  <rect x="96" y="96" width="832" height="832" rx="180" fill="url(#bgGrad)"/>
+
+  <g filter="url(#softShadow)">
+    <rect x="200" y="260" width="624" height="520" rx="190" fill="url(#bodyGrad)"/>
+  </g>
+
+  <!-- Lens -->
+  <circle cx="512" cy="560" r="170" fill="url(#accentGrad)"/>
+  <circle cx="512" cy="560" r="126" fill="url(#lensInner)"/>
+  <circle cx="470" cy="520" r="22" fill="#FFFFFF" fill-opacity="0.75"/>
+</svg>

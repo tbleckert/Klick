@@ -1,0 +1,29 @@
+{
+  "fill" : {
+    "automatic-gradient" : "display-p3:0.97852,0.98584,0.98975,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "image-name" : "0f8bda16172ed9ed2915109e15ffa6108b72971a9ac624a7f25e1a3b60cb35d3.png",
+          "name" : "0f8bda16172ed9ed2915109e15ffa6108b72971a9ac624a7f25e1a3b60cb35d3"
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
